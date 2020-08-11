@@ -38,7 +38,10 @@ var translations = {
   ja: require("./strings/ja.js") ,
 
   // Arabic-Lebanese
-  ar_lb: require("./strings/ar_lb.js")
+  ar_lb: require("./strings/ar_lb.js") ,
+  
+  en_ppl: require("./strings/en_ppl.js") , //english but asks you to suggest people rather than statements
+  ar_ppl: require("./strings/ar_ppl.js") , //arabic but asks you to suggest people rather than statements
 };
 
 
