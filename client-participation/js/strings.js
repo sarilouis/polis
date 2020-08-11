@@ -59,7 +59,10 @@ preloadHelper.acceptLanguagePromise.then(function() {
 
 
   prioritized.forEach(function(languageCode) {
-    if (languageCode.match(/^en/)) {
+    if (languageCode in translations) {
+      _.extend(strings, translations[languageCode]);
+    }
+    else if (languageCode.match(/^en/)) {
       _.extend(strings, translations.en_us);
     }
     else if (languageCode.match(/^ja/)) {
@@ -91,9 +94,6 @@ preloadHelper.acceptLanguagePromise.then(function() {
     }
     else if (languageCode.match(/^nl/)) {
       _.extend(strings, translations.nl);
-    }
-    else if (languageCode.match(/^ar/)) {
-      _.extend(strings, translations.ar_lb);
     }
     else if (
       languageCode.match(/^pt/) ||  // To help other Portuguese speaker participants until its specific translation is not here
