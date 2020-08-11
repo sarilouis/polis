@@ -35,7 +35,10 @@ var translations = {
   pt_br: require("./strings/pt_br.js"),
 
   // Japanese
-  ja: require("./strings/ja.js")
+  ja: require("./strings/ja.js") ,
+
+  // Arabic-Lebanese
+  ar_lb: require("./strings/ar_lb.js")
 };
 
 
@@ -88,6 +91,9 @@ preloadHelper.acceptLanguagePromise.then(function() {
     }
     else if (languageCode.match(/^nl/)) {
       _.extend(strings, translations.nl);
+    }
+    else if (languageCode.match(/^ar/)) {
+      _.extend(strings, translations.ar_lb);
     }
     else if (
       languageCode.match(/^pt/) ||  // To help other Portuguese speaker participants until its specific translation is not here

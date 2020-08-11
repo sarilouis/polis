@@ -412,6 +412,8 @@ if (<%= useIntercom %>) {
 
   if (window.ui_lang) {
     document.getElementsByTagName("body")[0].setAttribute("lang", ui_lang);
+    if (window.ui_lang.match(/^ar/))
+       document.getElementsByTagName("body")[0].setAttribute("dir", "rtl");
   }
 </script>
 
