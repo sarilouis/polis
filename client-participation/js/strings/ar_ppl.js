@@ -4,7 +4,7 @@ var s = {};
 
 s.agree = "أوافق";
 s.disagree = "لا أوافق";
-s.pass = "لست متأكدًا / لا أهتم";
+s.pass = "لست متأكدًا / لا اعترض";
 
 s.importantCheckbox = "هذا الاسم مهم";
 s.howImportantPrompt = "ما هي أهمية هذا الاسم؟";
