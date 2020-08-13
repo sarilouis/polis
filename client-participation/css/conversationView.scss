@@ -49,6 +49,11 @@ body {
 p {
   margin: 0 0 10px;
 }
+
+p[role=alert] {
+  background-color : $danger-bg-color; color : $danger-text-color; padding:10px;
+}
+
 img {
   vertical-align: middle;
 }
