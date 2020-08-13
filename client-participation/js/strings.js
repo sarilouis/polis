@@ -35,7 +35,13 @@ var translations = {
   pt_br: require("./strings/pt_br.js"),
 
   // Japanese
-  ja: require("./strings/ja.js")
+  ja: require("./strings/ja.js") ,
+
+  // Arabic-Lebanese
+  ar_lb: require("./strings/ar_lb.js") ,
+  
+  en_ppl: require("./strings/en_ppl.js") , //english but asks you to suggest people rather than statements
+  ar_ppl: require("./strings/ar_ppl.js") , //arabic but asks you to suggest people rather than statements
 };
 
 
@@ -56,7 +62,10 @@ preloadHelper.acceptLanguagePromise.then(function() {
 
 
   prioritized.forEach(function(languageCode) {
-    if (languageCode.match(/^en/)) {
+    if (languageCode in translations) {
+      _.extend(strings, translations[languageCode]);
+    }
+    else if (languageCode.match(/^en/)) {
       _.extend(strings, translations.en_us);
     }
     else if (languageCode.match(/^ja/)) {

@@ -4830,9 +4830,10 @@ ${serverName}/api/v3/verify?e=${einvite}`;
   }
 
   function isEmailVerified(email) {
-    return pgQueryP("select * from email_validations where email = ($1);", [email]).then(function(rows) {
-      return rows.length > 0;
-    });
+    return true;
+//    return pgQueryP("select * from email_validations where email = ($1);", [email]).then(function(rows) {
+//      return rows.length > 0;
+//    });
   }
 
   function handle_GET_verification(req, res) {

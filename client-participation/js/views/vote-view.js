@@ -54,6 +54,10 @@ module.exports = Handlebones.ModelView.extend({
     // ctx.customStyles += "padding-top: 39px; ";
     //   ctx.customStyles += "font-size: 22px; ";
     // }
+    if (document.body.dir === "rtl") {
+      ctx.rtl = true;
+      ctx.customStyles += "margin-right: 55px; margin-left: auto;";
+    }
     ctx.email = userObject.email;
     ctx.subscribed = this.isSubscribed();
     if (ctx.created) {
@@ -66,6 +70,8 @@ module.exports = Handlebones.ModelView.extend({
       ctx.customBtnStyles = "background-color: " + btnBg + ";";
     }
 
+    ctx.auth_opt_tw = preload.firstConv.auth_opt_tw;
+    ctx.auth_opt_fb = preload.firstConv.auth_opt_fb;
     var social = ctx.social;
     var socialCtx = {
       name: Strings.anonPerson,
