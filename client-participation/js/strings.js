@@ -46,7 +46,7 @@ var translations = {
 
 
 
-var strings = translations.en_ppl;
+var strings = translations.en_us;
 
 preloadHelper.acceptLanguagePromise.then(function() {
   var acceptLanguage = preload.acceptLanguage || "";
