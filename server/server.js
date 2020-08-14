@@ -1631,6 +1631,7 @@ const COOKIES = {
   PERMANENT_COOKIE: 'pc',
   TRY_COOKIE: 'tryCookie',
   PLAN_NUMBER: 'plan', // not set if trial user
+  LANG: 'en_ppl',
 };
 const COOKIES_TO_CLEAR = {
   e: true,
@@ -1777,6 +1778,12 @@ function initializePolisHelpers() {
     });
   }
 
+  function setLangCookie(req, res, setOnPolisDomain, lang) {
+    setCookie(req, res, setOnPolisDomain, COOKIES.LANG, lang, {
+      // not httpOnly - needed by JS
+    });
+  }
+
   function setPermanentCookie(req, res, setOnPolisDomain, token) {
     setCookie(req, res, setOnPolisDomain, COOKIES.PERMANENT_COOKIE, token, {
       httpOnly: true,
@@ -1811,6 +1818,7 @@ function initializePolisHelpers() {
       setPlanCookie(req, res, setOnPolisDomain, plan);
       setHasEmailCookie(req, res, setOnPolisDomain, email);
       setUserCreatedTimestampCookie(req, res, setOnPolisDomain, created);
+      setLangCookie(req, red, setOnPolisDomain, p.lang);
       if (!req.cookies[COOKIES.PERMANENT_COOKIE]) {
         setPermanentCookie(req, res, setOnPolisDomain, makeSessionToken());
       }
