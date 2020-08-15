@@ -2,6 +2,7 @@ import React from "react";
 import _ from "lodash";
 import Logo from "./hexLogo";
 import Gear from "./gear";
+import Language from "./language";
 
 class Header extends React.Component {
   render() {
@@ -14,7 +15,8 @@ class Header extends React.Component {
         justifyContent: "space-between",
         alignItems: "center",
       }}>
-        {this.props.is_embedded ? "" : <Logo/>}
+        {this.props.is_embedded ? "" : <Logo />}
+        {<Language />}
         {this.props.is_owner ? <Gear conversation_id={this.props.conversation_id}/> : ""}
       </div>
     )
