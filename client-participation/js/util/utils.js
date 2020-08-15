@@ -284,7 +284,7 @@ function getBestTranslation(translations, lang) {
 
 function uiLanguage() {
   var params = parseQueryParams(window.location.search);
-  var lang = params.ui_lang;
+  var lang = params.ui_lang || getCookie("lang");
   if (_.isUndefined(lang)) {
     return window.preload.acceptLanguage && window.preload.acceptLanguage.substr(0,2) || null;
     // return null;
