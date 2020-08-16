@@ -40,7 +40,7 @@ function facebookLoginOkHandler(response, optionalPassword) {
     data: JSON.stringify(data),
     type: "POST"
   });
-  promise.fail(function(o) {
+  promise.fail(function (o) {
     if ("polis_err_reg_fb_verification_email_sent" === o.responseText) {
       alert(Strings.polis_err_reg_fb_verification_email_sent);
     }
@@ -59,19 +59,19 @@ function facebookLoginOkHandler(response, optionalPassword) {
 
 function fbLoginPrompt() {
   var dfd = $.Deferred();
-  FB.getLoginStatus(function(response) {
+  FB.getLoginStatus(function (response) {
     if (response.status !== 'connected') {
-      return FB.login(function(response) {
-      if (response.authResponse) {
-        return facebookLoginOkHandler(response).then(dfd.resolve, dfd.reject);
-      } else {
-        return dfd.reject();
-      }
-    } , {
-      return_scopes: true, // response should contain the scopes the user allowed
-      //scope: ['public_profile','user_location','user_friends','email'].join(',')
-      scope: ['public_profile','email'].join(',')
-    });
+      return FB.login(function (response) {
+        if (response.authResponse) {
+          return facebookLoginOkHandler(response).then(dfd.resolve, dfd.reject);
+        } else {
+          return dfd.reject();
+        }
+      }, {
+        return_scopes: true, // response should contain the scopes the user allowed
+        //scope: ['public_profile','user_location','user_friends','email'].join(',')
+        scope: ['public_profile', 'email'].join(',')
+      });
     } else {
       if (response.authResponse) {
         return facebookLoginOkHandler(response).then(dfd.resolve, dfd.reject);
@@ -95,10 +95,10 @@ function connect() {
 
     M.add(M.FB_GETLOGINSTATUS_INIT);
 
-    FB.getLoginStatus(function(x) {
+    FB.getLoginStatus(function (x) {
       if (x.status === "connected") {
         M.add(M.FB_GETLOGINSTATUS_CONNECTED);
-        facebookLoginOkHandler(x /*, password */ ).then(dfd.resolve, dfd.reject);
+        facebookLoginOkHandler(x /*, password */).then(dfd.resolve, dfd.reject);
       } else {
         M.add(M.FB_GETLOGINSTATUS_NOTCONNECTED);
         // this code path may trigger popup blockers.
