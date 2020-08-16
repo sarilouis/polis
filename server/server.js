@@ -6722,6 +6722,10 @@ Email verified! You can close this tab or hit the back button.
 
 
   function handle_POST_auth_new(req, res) {
+    // disabling user creation
+    fail(res, 403, "Unauthorized");
+    return;
+
     let hname = req.p.hname;
     let password = req.p.password;
     let password2 = req.p.password2; // for verification
