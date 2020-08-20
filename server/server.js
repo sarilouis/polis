@@ -9751,6 +9751,7 @@ Email verified! You can close this tab or hit the back button.
               fail(res, 500, "polis_err_update_conversation", err);
               return;
             }
+            deleteConversationTranslations(req.p.zid); // Delete stale conversation translations since topic and description might have changed
             let conv = result && result.rows && result.rows[0];
             // The first check with isModerator implictly tells us this can be returned in HTTP response.
             conv.is_mod = true;
@@ -10205,9 +10206,54 @@ Email verified! You can close this tab or hit the back button.
     });
   }
 
+  function deleteConversationTranslations(zid) {
+    return new Promise(function(resolve, reject) {
+      pgQuery("DELETE FROM conversation_translations WHERE zid = ($1);", [zid], function(err, results) {
+        if (err) {
+          // resolve, but complain
+          yell("polis_err_removing_conversation_translations");
+        }
+        resolve();
+      });
+    });
+  }
+
   function getConversationTranslations(zid, lang) {
     const firstTwoCharsOfLang = lang.substr(0,2);
-    return pgQueryP("select * from conversation_translations where zid = ($1) and lang = ($2);", [zid, firstTwoCharsOfLang]);
+    return new Promise(function(resolve, reject) {
+      pgQueryP_readOnly("select * from conversation_translations where zid = ($1) and lang = ($2);", [zid, firstTwoCharsOfLang]).then(rows => {
+        if (rows.length === 0 && useTranslateApi) {
+          pgQueryP_readOnly("select topic, description from conversations where zid = ($1)", [zid]).then(conv => {
+            if (conv.length > 0) {
+              translateAndStoreConversationInfo(zid, conv[0].topic, conv[0].description, firstTwoCharsOfLang).then(row => {
+                resolve([row]);
+              });
+            }
+            else {
+              resolve([]);
+            }
+            //conv.length > 0 ?  : resolve();
+          });
+        }
+        else {
+          resolve(rows);
+        }
+      });
+    });
+  }
+
+  function translateAndStoreConversationInfo(zid, topic, description, lang) {
+    if (useTranslateApi) {
+      return translateString([topic, description], lang).then((results) => {
+        const topicTranslation = results[0][0];
+        const descriptionTranslation = results[0][1];
+        const src = -1; // Google Translate of txt with no added context
+        return pgQueryP("insert into conversation_translations (zid, topic, description, lang, src) values ($1, $2, $3, $4, $5) returning *;", [zid, topicTranslation, descriptionTranslation, lang, src]).then((rows) => {
+          return rows[0];
+        });
+      });
+    }
+    return Promise.resolve(null);
   }
 
   function getConversationTranslationsMinimal(zid, lang) {
