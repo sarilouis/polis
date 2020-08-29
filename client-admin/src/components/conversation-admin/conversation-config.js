@@ -32,17 +32,17 @@ class ConversationConfig extends React.Component {
     }
   }
 
-  transformBoolToInt(value) {
-    return value ? 1 : 0
+  transformBoolToInt(value , f=0, t=1) {
+    return value ? t : f
   }
 
-  handleIntegerBoolValueChange(field) {
+  handleIntegerBoolValueChange(field , f=0, t=1) {
     return () => {
       this.props.dispatch(
         handleZidMetadataUpdate(
           this.props.zid_metadata,
           field,
-          this.transformBoolToInt(this[field].checked)
+          this.transformBoolToInt(this[field].checked , f , t)
         )
       )
     }
@@ -223,13 +223,11 @@ class ConversationConfig extends React.Component {
           <Box sx={{ flexShrink: 0, position: 'relative', top: -0.5 }}>
             <input
               type="checkbox"
-              label="Prompt participants to subscribe to updates"
+              label="Prompt participants to subscribe to updates by email"
               data-test-id="subscribe_type"
               ref={c => (this.subscribe_type = c)}
               checked={this.props.zid_metadata.subscribe_type === 1}
-              onChange={this.handleIntegerBoolValueChange(
-                'subscribe_type'
-              ).bind(this)}
+              onChange={this.handleIntegerBoolValueChange('subscribe_type' , 0 , 1).bind(this)}
             />
           </Box>
           <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
@@ -238,6 +236,26 @@ class ConversationConfig extends React.Component {
               users once they finish voting on all available comments. If
               enabled, participants may optionally provide their email address
               to receive notifications when there are new comments to vote on.
+            </Text>
+          </Box>
+        </Flex>
+
+        <Flex sx={{ alignItems: 'flex-start', mb: [3] }}>
+          <Box sx={{ flexShrink: 0, position: 'relative', top: -0.5 }}>
+            <input
+              type="checkbox"
+              label="Prompt participants to subscribe to updates in browser"
+              ref={c => (this.subscribe_type = c)}
+              checked={this.props.zid_metadata.subscribe_type === 2}
+              onChange={this.handleIntegerBoolValueChange('subscribe_type' , 0 , 2).bind(this)}
+            />
+          </Box>
+          <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
+            <Text>
+              Prompt participants to subscribe to updates by getting 
+              browser notification when there are new comments to vote on.
+              A prompt is shown to users once they finish voting on all 
+              available comments. 
             </Text>
           </Box>
         </Flex>

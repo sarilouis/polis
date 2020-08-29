@@ -361,10 +361,13 @@ function getSubscribeType() {
   return subscribe_type;
 }
 
-function userCanSeeSubscribePrompt() {
+function userSubscribeType() {
+  return getSubscribeType();
+}
+  function userCanSeeSubscribePrompt() {
   var x = getSubscribeType();
-  // 1 is for email, there are no other options yet.
-  x = (x === 1 || x === "1" || x === "true");
+  // 1 is for email,2 for browser  there are no other options yet.
+  x = (x === 1 || x === "1" || x === 2 || x === "2" || x === "true");
   return x;
 }
 
@@ -395,6 +398,7 @@ module.exports = {
   userCanSeeFooter: userCanSeeFooter,
   userCanSeeHelp: userCanSeeHelp,
   userCanSeeSubscribePrompt: userCanSeeSubscribePrompt,
+  userSubscribeType: userSubscribeType,
   argMax: argMax,
   argMin: argMin,
   mapObj: mapObj,

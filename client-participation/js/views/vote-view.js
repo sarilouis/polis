@@ -110,6 +110,9 @@ module.exports = Handlebones.ModelView.extend({
     ctx.noModSet = !ctx.spamOn && !ctx.otOn && !ctx.importantOn;
     ctx.canSubscribe = !!preload.firstPtpt || this.votesByMe.size() > 0;
     ctx.canSubscribe = ctx.canSubscribe && Utils.userCanSeeSubscribePrompt();
+    var subscribeType = Utils.userSubscribeType();
+    ctx.canSubscribeEmail   = subscribeType === 1 || subscribeType === '1';
+    ctx.canSubscribeBrowser = subscribeType === 2 || subscribeType === '2';
     ctx.needSocial = this.model.get("needSocial");
 
     if (ctx.showTranslation && ctx.translations && ctx.translations.length) {

@@ -57,36 +57,43 @@
     </p>
   {{else}} {{!-- !subscribed --}}
     {{#if canSubscribe}}
-      <p class="HeadingF HeadingF--light "><i class="fa fa-bell-o"></i>&nbsp;<strong>{{txt1}}</strong></p>
+      <p class="HeadingF HeadingF--light "><i class="fa fa-bell-o"></i>&nbsp;<strong>{{txt1}}</strong> </p>
       <form role="form" class="FormVertical" id="subscribeEmailForm">
-        {{#if email}}
-          <p>{{s.notificationsGetNotified}}</p>
-          <pre>{{email}}</pre>
-        {{else}} {{!-- !email --}}
-          <p>{{s.notificationsEnterEmail}}</p>
+      {{#if canSubscribeEmail}}
+          {{#if email}}
+            <p>{{s.notificationsGetNotified}}</p>
+            <pre>{{email}}</pre>
+          {{else}} {{!-- !email --}}
+            <p>{{s.notificationsEnterEmail}}</p>
+            <div class="FormVertical-group">
+              <label class="FormLabel" for="gatekeeperEmailCreate">{{s.labelEmail}}</label>
+              <input type="text" name="email" id="gatekeeperEmailCreate" size="40" class="email FormControl" {{#if readonlyEmail}}readonly{{/if}}>
+            </div>
+          {{/if}} {{!-- /email --}}
           <div class="FormVertical-group">
-            <label class="FormLabel" for="gatekeeperEmailCreate">{{s.labelEmail}}</label>
-            <input type="text" name="email" id="gatekeeperEmailCreate" size="40" class="email FormControl" {{#if readonlyEmail}}readonly{{/if}}>
+            <button id="subscribeBtn" class="Btn Btn-primary unselectable" style="
+              text-transform: none;
+              font-size: 16px;
+              font-weight: 500;
+              cursor: pointer;
+              border: none;
+              border-radius: 4px;
+              background-color: #0090ff;
+              color: white;
+              min-width: 110px;
+              height: 40px;
+              margin-left: 5px;
+              display: inline-block;
+              margin-top: 10px;
+              {{customBtnStyles}}
+              ">{{s.notificationsSubscribeButton}}</button>
           </div>
-        {{/if}} {{!-- /email --}}
-        <div class="FormVertical-group">
-          <button id="subscribeBtn" class="Btn Btn-primary unselectable" style="
-            text-transform: none;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            border-radius: 4px;
-            background-color: #0090ff;
-            color: white;
-            min-width: 110px;
-            height: 40px;
-            margin-left: 5px;
-            display: inline-block;
-            margin-top: 10px;
-            {{customBtnStyles}}
-            ">{{s.notificationsSubscribeButton}}</button>
-        </div>
+      {{/if}} {{!-- /canSubscribeEmail --}}
+      {{#if canSubscribeBrowser}}
+          <div class="FormVertical-group">
+            <label><input type="checkbox" name="browser_notify" value="yes"> {{ s.notificationsBrowserGetNotified }}</label>
+          </div>
+      {{/if}} {{!-- /canSubscribeBrowser --}}
       </form>
     {{else}} {{!-- !canSubscribe --}}
       <div><strong>{{txt1}}</strong></div>

@@ -98,7 +98,8 @@ s.hideTranslationButton = "Deactivate Translation";
 s.thirdPartyTranslationDisclaimer = "Translation provided by a third party";
 
 s.notificationsAlreadySubscribed = "You are subscribed to updates for this conversation.";
-s.notificationsGetNotified = "Get notified when more statements arrive:";
+s.notificationsGetNotified = "Get notified by email when more statements arrive:";
+s.notificationsBrowserGetNotified = "Get notified in your browser when more statements arrive.";
 s.notificationsEnterEmail = "Enter your email address to get notified when more statements arrive:";
 s.labelEmail = "Email";
 s.notificationsSubscribeButton = "Subscribe";

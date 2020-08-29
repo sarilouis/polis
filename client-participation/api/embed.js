@@ -61,7 +61,7 @@
 
          ui_lang: d.getAttribute("data-ui_lang"),
 
-         subscribe_type: d.getAttribute("data-subscribe_type"), // 0 for no prompt, 1 for email prompt (1 is default)
+         subscribe_type: d.getAttribute("data-subscribe_type"), // 0 for no prompt, 1 for email prompt , 2 for browser (1 is default)
 
          // These config variables will be used to init the conversation.
          // Subsequent loads will not update to these values in our DB.
