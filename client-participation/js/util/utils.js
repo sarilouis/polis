@@ -364,7 +364,8 @@ function getSubscribeType() {
 function userSubscribeType() {
   return getSubscribeType();
 }
-  function userCanSeeSubscribePrompt() {
+
+function userCanSeeSubscribePrompt() {
   var x = getSubscribeType();
   // 1 is for email,2 for browser  there are no other options yet.
   x = (x === 1 || x === "1" || x === 2 || x === "2" || x === "true");
