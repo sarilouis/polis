@@ -539,6 +539,7 @@ gulp.task("scriptsOther", function() {
     files.push('bower_components/d3/d3.min.js');
   }
   files.push('d3.v4.min.js');
+  files.push('service-worker.js');
   var s = gulp.src(files);
   if (!devMode) {
     s = s
@@ -553,6 +554,7 @@ gulp.task("scriptsTemp", function() {
 
   var files = [];
   files.push('d3.v4.min.js');
+  files.push('service-worker.js');
   var s = gulp.src(files);
   if (!devMode) {
     s = s

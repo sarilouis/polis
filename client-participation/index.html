@@ -48,6 +48,18 @@
 <script> // Fire off this ajax first. it's slower than the other CDN delivered things.
 (function() {
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('<%= basepath %>/js/service-worker.js').then(function(registration) {
+      // Registration was successful
+      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    }, function(err) {
+      // registration failed :(
+      console.log('ServiceWorker registration failed: ', err);
+    });
+  });
+}
+
 function parseQueryParams(s) {
   if (typeof s !== "string") {
     return {};
