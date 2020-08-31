@@ -78,6 +78,7 @@ const Conversation = require('./conversation');
 const Session = require('./session');
 const Comment = require('./comment');
 const Utils = require('./utils/common');
+const Translator = require('./translator');
 const SQL = require('./db/sql');
 // End of re-import
 
@@ -577,8 +578,6 @@ function initializePolisHelpers() {
       });
   }
 
-  const detectLanguage = Comment.detectLanguage;
-
   if (isTrue(process.env.BACKFILL_COMMENT_LANG_DETECTION)) {
     pgQueryP("select tid, txt, zid from comments where lang is null;", []).then((comments) => {
       let i = 0;
@@ -586,7 +585,7 @@ function initializePolisHelpers() {
         if (i < comments.length) {
           let c = comments[i];
           i += 1;
-          detectLanguage(c.txt).then((x) => {
+          Translator.detectLanguage(c.txt).then((x) => {
             x = x[0];
             console.log("backfill", x.language + "\t\t" + c.txt);
             pgQueryP("update comments set lang = ($1), lang_confidence = ($2) where zid = ($3) and tid = ($4)",[
@@ -1785,9 +1784,9 @@ function initializePolisHelpers() {
       }
       if (!rows || !rows.length) {
         // Could actually be a 404, would require more work to determine that.
-        return new Error("polis_err_get_pca_results_missing");
+        throw new Error("polis_err_get_pca_results_missing");
       } else if (rows[0].data.math_tick <= math_tick) {
-        return new Error("polis_err_get_pca_results_not_new");
+        throw new Error("polis_err_get_pca_results_not_new");
       } else {
         return rows[0].data;
       }
@@ -1891,6 +1890,9 @@ function initializePolisHelpers() {
       let bids = pids.map(findBidForPid);
       let pidToBid = _.object(pids, bids);
       return pidToBid;
+    }).catch(function(err) {
+      yell("polis_err_get_bids_for_pids_failed");
+      console.error(err);
     });
   }
 
@@ -3047,9 +3049,9 @@ Thank you for using Polis`;
 
   function isEmailVerified(email) {
     return true;
-//    return pgQueryP("select * from email_validations where email = ($1);", [email]).then(function(rows) {
-//      return rows.length > 0;
-//    });
+    // return pgQueryP("select * from email_validations where email = ($1);", [email]).then(function (rows) {
+    //   return rows.length > 0;
+    // });
   }
 
   function handle_GET_verification(req, res) {
@@ -7161,7 +7163,7 @@ Email verified! You can close this tab or hit the back button.
               fail(res, 500, "polis_err_update_conversation", err);
               return;
             }
-            deleteConversationTranslations(req.p.zid); // Delete stale conversation translations since topic and description might have changed
+            Conversation.deleteConversationTranslations(req.p.zid); // Delete stale conversation translations since topic and description might have changed
             let conv = result && result.rows && result.rows[0];
             // The first check with isModerator implictly tells us this can be returned in HTTP response.
             conv.is_mod = true;
@@ -7610,78 +7612,13 @@ Email verified! You can close this tab or hit the back button.
     });
   }
 
-  function deleteConversationTranslations(zid) {
-    return new Promise(function(resolve, reject) {
-      pgQuery("DELETE FROM conversation_translations WHERE zid = ($1);", [zid], function(err, results) {
-        if (err) {
-          // resolve, but complain
-          yell("polis_err_removing_conversation_translations");
-        }
-        resolve();
-      });
-    });
-  }
-
-  function getConversationTranslations(zid, lang) {
-    const firstTwoCharsOfLang = lang.substr(0,2);
-    return new Promise(function(resolve, reject) {
-      pgQueryP_readOnly("select * from conversation_translations where zid = ($1) and lang = ($2);", [zid, firstTwoCharsOfLang]).then(rows => {
-        if (rows.length === 0 && useTranslateApi) {
-          pgQueryP_readOnly("select topic, description from conversations where zid = ($1)", [zid]).then(conv => {
-            if (conv.length > 0) {
-              translateAndStoreConversationInfo(zid, conv[0].topic, conv[0].description, firstTwoCharsOfLang).then(row => {
-                resolve([row]);
-              });
-            }
-            else {
-              resolve([]);
-            }
-            //conv.length > 0 ?  : resolve();
-          });
-        }
-        else {
-          resolve(rows);
-        }
-      });
-    });
-  }
-
-  function translateAndStoreConversationInfo(zid, topic, description, lang) {
-    if (useTranslateApi) {
-      return translateString([topic, description], lang).then((results) => {
-        const topicTranslation = results[0][0];
-        const descriptionTranslation = results[0][1];
-        const src = -1; // Google Translate of txt with no added context
-        return pgQueryP("insert into conversation_translations (zid, topic, description, lang, src) values ($1, $2, $3, $4, $5) returning *;", [zid, topicTranslation, descriptionTranslation, lang, src]).then((rows) => {
-          return rows[0];
-        });
-      });
-    }
-    return Promise.resolve(null);
-  }
-
-  function getConversationTranslationsMinimal(zid, lang) {
-    if (!lang) {
-      return Promise.resolve([]);
-    }
-    return getConversationTranslations(zid, lang).then(function(rows) {
-      for (let i = 0; i < rows.length; i++) {
-        delete rows[i].zid;
-        delete rows[i].created;
-        delete rows[i].modified;
-        delete rows[i].src;
-      }
-      return rows;
-    });
-  }
-
   function getOneConversation(zid, uid, lang) {
 
     return Promise.all([
       pgQueryP_readOnly("select * from conversations left join  (select uid, site_id, plan from users) as u on conversations.owner = u.uid where conversations.zid = ($1);", [zid]),
       getConversationHasMetadata(zid),
       (_.isUndefined(uid) ? Promise.resolve({}) : getUserInfoForUid2(uid)),
-      getConversationTranslationsMinimal(zid, lang),
+      Conversation.getConversationTranslationsMinimal(zid, lang),
     ]).then(function(results) {
       let conv = results[0] && results[0][0];
       let convHasMetadata = results[1];

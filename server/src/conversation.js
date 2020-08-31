@@ -2,6 +2,11 @@ const pg = require('./db/pg-query');
 const User = require('./user');
 const MPromise = require('./utils/metered').MPromise;
 const LruCache = require("lru-cache");
+const Translator = require('./translator');
+
+const detectLanguage = Translator.detectLanguage;
+const translateString = Translator.translateString;
+const useTranslateApi = Translator.useTranslateApi;
 
 function createXidRecord(ownerUid, uid, xid, x_profile_image_url, x_name, x_email) {
   return pg.queryP("insert into xids (owner, uid, xid, x_profile_image_url, x_name, x_email) values ($1, $2, $3, $4, $5, $6) " +
@@ -148,6 +153,71 @@ function getZidFromConversationId(conversation_id) {
   });
 }
 
+function deleteConversationTranslations(zid) {
+  return new Promise(function(resolve, reject) {
+    pg.query("DELETE FROM conversation_translations WHERE zid = ($1);", [zid], function(err, results) {
+      if (err) {
+        // resolve, but complain
+        yell("polis_err_removing_conversation_translations");
+      }
+      resolve();
+    });
+  });
+}
+
+function getConversationTranslations(zid, lang) {
+  const firstTwoCharsOfLang = lang.substr(0,2);
+  return new Promise(function(resolve, reject) {
+    pg.queryP_readOnly("select * from conversation_translations where zid = ($1) and lang = ($2);", [zid, firstTwoCharsOfLang]).then(rows => {
+      if (rows.length === 0 && useTranslateApi) {
+        pg.queryP_readOnly("select topic, description from conversations where zid = ($1)", [zid]).then(conv => {
+          if (conv.length > 0) {
+            translateAndStoreConversationInfo(zid, conv[0].topic, conv[0].description, firstTwoCharsOfLang).then(row => {
+              resolve([row]);
+            });
+          }
+          else {
+            resolve([]);
+          }
+          //conv.length > 0 ?  : resolve();
+        });
+      }
+      else {
+        resolve(rows);
+      }
+    });
+  });
+}
+
+function translateAndStoreConversationInfo(zid, topic, description, lang) {
+  if (useTranslateApi) {
+    return translateString([topic, description], lang).then((results) => {
+      const topicTranslation = results[0][0];
+      const descriptionTranslation = results[0][1];
+      const src = -1; // Google Translate of txt with no added context
+      return pg.queryP("insert into conversation_translations (zid, topic, description, lang, src) values ($1, $2, $3, $4, $5) returning *;", [zid, topicTranslation, descriptionTranslation, lang, src]).then((rows) => {
+        return rows[0];
+      });
+    });
+  }
+  return Promise.resolve(null);
+}
+
+function getConversationTranslationsMinimal(zid, lang) {
+  if (!lang) {
+    return Promise.resolve([]);
+  }
+  return getConversationTranslations(zid, lang).then(function(rows) {
+    for (let i = 0; i < rows.length; i++) {
+      delete rows[i].zid;
+      delete rows[i].created;
+      delete rows[i].modified;
+      delete rows[i].src;
+    }
+    return rows;
+  });
+}
+
 module.exports = {
   createXidRecordByZid,
   getXidRecord,
@@ -157,4 +227,6 @@ module.exports = {
   getConversationInfo,
   getConversationInfoByConversationId,
   getZidFromConversationId,
+  getConversationTranslationsMinimal,
+  deleteConversationTranslations,
 };
