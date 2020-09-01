@@ -32,6 +32,7 @@ module.exports = Handlebones.ModelView.extend({
     "click #disagreeButton": "participantDisagreed",
     "click #passButton": "participantPassed",
     "click #subscribeBtn": "subscribeBtn",
+    "click #browserSubscribe": "browserSubscribe",
     'submit #subscribeEmailForm': "subscribeBtn",
 
     "click #spamToggle": "spamToggle",
@@ -482,6 +483,146 @@ module.exports = Handlebones.ModelView.extend({
       });
       return false;
     };
+    this.browserSubscribe = function(e) {
+      //var that = this;
+      var notification_permission = Notification && Notification.permission;
+console.log('notification_permission ' , notification_permission);
+      var local_endpoint = null;
+      var profile_allow_notifications = true;
+      var profile_endpoint;
+      var get_endpoint = function () {
+        navigator.serviceWorker.ready.then(function(r) {
+          return r.pushManager.getSubscription().then( function(s) {
+            if (s) {
+              local_endpoint = s.endpoint;
+              //profile_allow_notifications =  v.profile.endpoint && s.endpoint && v.profile.endpoint == s.endpoint;
+              profile_allow_notifications =  s.endpoint ;
+              console.log("Endpoint" , local_endpoint);
+            } else {
+              local_endpoint = null;
+              console.log("Endpoint" , local_endpoint);
+              profile_allow_notifications = false;
+            }
+          });
+        });
+      };
+      
+      var switch_allow_notifications = function() {
+        var ask_permission = function () {
+          return new Promise(function(resolve, reject) {
+            var permissionResult = Notification.requestPermission(function(result) {  resolve(result);});
+            if (permissionResult) { permissionResult.then(resolve, reject); }
+          })
+          .then(function(permissionResult) {
+            if (permissionResult !== 'granted') {  throw new Error(permissionResult); /*default or blocked*/ }
+          });
+        };
+        var urlBase64ToUint8Array = function (base64String) {
+          var padding = '='.repeat((4 - base64String.length % 4) % 4);
+          var base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+          var rawData = window.atob(base64);
+          return Uint8Array.from(Array.prototype.slice.call(rawData).map(function(char) { return char.charCodeAt(0); } ));
+        };
+        var subscribe_push = function () {
+console.log('subscribe_push start');
+          navigator.serviceWorker.ready.then(function(registration) {
+console.log('subscribe_push ready');
+            if (!registration.pushManager) {
+              console.error('Your browser doesn\'t support push notification.');
+              return false;
+            }
+console.log('subscribe_push going to subscribe');
+
+            //To subscribe `push notification` from push manager
+            registration.pushManager.subscribe({
+              userVisibleOnly: true , //Always show notification when received
+              applicationServerKey: urlBase64ToUint8Array('BOC0fBtSwJJMJpCvgpWFzap9Aqg3yGUDwWgO0Zo4zN5pUuijeEIqQGJxBRGDSmRt6HyHG8fucX4mkBrSPFTVSKk')
+            })
+            .then(function (subscription) {
+              console.info('Push notification subscribed.');
+              console.log(subscription);
+              var s = JSON.parse ( JSON.stringify( subscription ) );
+              console.log(s);
+              var aud = new URL(subscription.endpoint).origin;
+              console.log(aud);
+//              axios.post('/api/subscription/add' , s ).then(function(){
+//                console.log('notification_on');
+//              });
+              profile_endpoint = s.endpoint;
+              //v.$root.user.endpoint = s.endpoint;
+            })
+            .catch(function (error) {
+              console.error('Push notification subscription error: ', error);
+              console.error( error);
+            });
+          })
+          .catch(function (error) {
+            console.error('Navigator ready error: ', error);
+            console.error( error);
+          });
+        };
+    
+        var unsubscribe_push = function () {
+          navigator.serviceWorker.ready.then(function(registration) {
+            //Get `push subscription`
+            registration.pushManager.getSubscription()
+            .then(function (subscription) {
+              //If no `push subscription`, then return
+              if(!subscription) {
+                console.error('Unable to unregister push notification.');
+                return;
+              }
+    
+              //Unsubscribe `push notification`
+              subscription.unsubscribe().then(function () {
+                console.info('Push notification unsubscribed.');
+                console.log(subscription);
+                profile_endpoint = undefined;
+                //v.$root.user.endpoint = undefined;
+//                axios.post('/api/subscription/remove' , { endpoint : subscription.endpoint } ).then(function(){
+//                  //v.$q.notify({position:'top-right',color:'deep-orange',icon:'add_alert', multiLine : true , timeout:0, message : v.$t('message.notification_off') , actions : [	{label:'close' , color:'black' } ]})
+//                  console.log('notification_off');
+//                });
+              })
+              .catch(function (error) {
+                console.error(error);
+              });
+            })
+            .catch(function (error) {
+              console.error('Failed to unsubscribe push notification.');
+            });
+          })
+          .catch(function (error) {
+            console.error('Navigator ready error: ', error);
+            console.error( error);
+          });
+        };
+    
+        if (notification_permission === 'default')  {
+          ask_permission().then( function() {
+            subscribe_push();
+          })
+          .catch( function(error){
+            console.log('Noooooo' , error);
+            profile_allow_notifications = false;
+            unsubscribe_push();
+          });
+        } else {
+          if (profile_allow_notifications) {
+            subscribe_push();
+          } else {
+            unsubscribe_push();
+          }
+        }
+    
+      };
+
+      console.log("Click" , e);
+      get_endpoint();
+      switch_allow_notifications();
+      return false;
+    };
+
     this.getWeight = function() {
       if ($("#weight_low").prop("checked")) {
         return -1;
