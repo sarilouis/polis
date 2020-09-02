@@ -11,6 +11,7 @@ var concat = require('gulp-concat');
 var isTrue = require('boolean');
 var uglify = require('gulp-uglify')
 var rename = require('gulp-rename');
+var replace = require('gulp-replace');
 var connect = require('gulp-connect');
 var tap = require('gulp-tap');
 var clean = require('gulp-clean');
@@ -387,8 +388,6 @@ gulp.task('lint', ['jshint']);
 
 
 gulp.task('scriptsVis2', ['jshint'], function() {
-
-
   var webpackFilename = minified ? './webpack.config.js' : './webpack.config.unminified.js';
 
   var configProd = require(webpackFilename);
@@ -506,6 +505,7 @@ gulp.task('scripts', ['templates', 'jshint'], function() {
         },
       }))
       .pipe(concat('polis.js'))
+      .pipe(replace(/<%=.*applicationServerKey.*%>/ig, polisConfig.NOTIFICATION_KEY));
   // TODO      .pipe(header("copyright Polis... (except that libs are mixed in)
 
       if (prodMode || (preprodMode && minified)) {
