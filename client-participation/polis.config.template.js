@@ -22,6 +22,8 @@ module.exports = {
   // must register with facebook and get a facebook app id to use the facebook auth features
   FB_APP_ID: '631943877428613',
 
+  NOTIFICATION_KEY: 'BOC0fBtSwJJMJpCvgpWFzap9Aqg3yGUDwWgO0Zo4zN5pUuijeEIqQGJxBRGDSmRt6HyHG8fucX4mkBrSPFTVSKk',
+
   // For data exports
 
   UPLOADER: 'local', // alt: s3, scp
