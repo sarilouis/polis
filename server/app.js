@@ -435,7 +435,9 @@ helpersInitialized.then(function(o) {
     auth(assignToP),
     need('conversation_id', getConversationIdFetchZid, assignToPCustom('zid')),
     need("type", getInt, assignToP),
-    need('email', getEmail, assignToP),
+    want('email', getEmail, assignToP),
+    //want('endpoint', getUrlLimitLength(999), assignToP), //TODO: Figure out why this does not work!
+    want('endpoint', getStringLimitLength(0,999), assignToP),
     handle_POST_convSubscriptions);
 
   app.post("/api/v3/auth/login",

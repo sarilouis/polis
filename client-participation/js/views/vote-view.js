@@ -484,7 +484,7 @@ module.exports = Handlebones.ModelView.extend({
       return false;
     };
     this.browserSubscribe = function(e) {
-      //var that = this;
+      var that = this;
       var notification_permission = Notification && Notification.permission;
 console.log('notification_permission ' , notification_permission);
       var local_endpoint = null;
@@ -539,17 +539,27 @@ console.log('subscribe_push going to subscribe');
               applicationServerKey: urlBase64ToUint8Array('<%=webPushPublicKey%>'),
             })
             .then(function (subscription) {
-              console.info('Push notification subscribed.');
+console.info('Push notification subscribed.');
               console.log(subscription);
               var s = JSON.parse ( JSON.stringify( subscription ) );
-              console.log(s);
-              var aud = new URL(subscription.endpoint).origin;
-              console.log(aud);
-//              axios.post('/api/subscription/add' , s ).then(function(){
-//                console.log('notification_on');
-//              });
               profile_endpoint = s.endpoint;
-              //v.$root.user.endpoint = s.endpoint;
+console.log('subscription' , s);
+              var aud = new URL(subscription.endpoint).origin;
+console.log('aud' , aud);
+              serverClient.convSub({
+                type: 2, // 1 for server
+                endpoint: profile_endpoint,
+                conversation_id: conversation_id
+              }).then(function() {
+                userObject.endpoint = profile_endpoint; // TODO this is double extra crappy
+                that.isSubscribed(2); // TODO this is totally crappy
+                that.model.set("foo", Math.random()); // trigger render
+console.log("Push notification saved");
+              }, function(err) {
+                alert(Strings.notificationsSubscribeErrorAlert);
+                console.error(err);
+              });
+        
             })
             .catch(function (error) {
               console.error('Push notification subscription error: ', error);
@@ -578,6 +588,20 @@ console.log('subscribe_push going to subscribe');
                 console.info('Push notification unsubscribed.');
                 console.log(subscription);
                 profile_endpoint = undefined;
+                serverClient.convSub({
+                  type: 2, // 1 for server
+                  endpoint: profile_endpoint,
+                  conversation_id: conversation_id
+                }).then(function() {
+                  userObject.endpoint = profile_endpoint; // TODO this is double extra crappy
+                  that.isSubscribed(2); // TODO this is totally crappy
+                  that.model.set("foo", Math.random()); // trigger render
+console.log("Push notification removed");
+                }, function(err) {
+                  alert(Strings.notificationsSubscribeErrorAlert);//TODO: Another error
+                  console.error(err);
+                });
+  
                 //v.$root.user.endpoint = undefined;
 //                axios.post('/api/subscription/remove' , { endpoint : subscription.endpoint } ).then(function(){
 //                  //v.$q.notify({position:'top-right',color:'deep-orange',icon:'add_alert', multiLine : true , timeout:0, message : v.$t('message.notification_off') , actions : [	{label:'close' , color:'black' } ]})
