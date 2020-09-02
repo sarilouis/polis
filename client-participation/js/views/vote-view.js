@@ -536,7 +536,7 @@ console.log('subscribe_push going to subscribe');
             //To subscribe `push notification` from push manager
             registration.pushManager.subscribe({
               userVisibleOnly: true , //Always show notification when received
-              applicationServerKey: urlBase64ToUint8Array('<%= applicationServerKey %>'),
+              applicationServerKey: urlBase64ToUint8Array('<%=webPushPublicKey%>'),
             })
             .then(function (subscription) {
               console.info('Push notification subscribed.');

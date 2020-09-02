@@ -505,7 +505,7 @@ gulp.task('scripts', ['templates', 'jshint'], function() {
         },
       }))
       .pipe(concat('polis.js'))
-      .pipe(replace(/<%=.*applicationServerKey.*%>/ig, polisConfig.NOTIFICATION_KEY));
+      .pipe(replace(/<%=\s*webPushPublicKey\s*%>/ig, polisConfig.NOTIFICATION_KEY));
   // TODO      .pipe(header("copyright Polis... (except that libs are mixed in)
 
       if (prodMode || (preprodMode && minified)) {
