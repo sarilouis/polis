@@ -233,7 +233,6 @@ gulp.task('sparklines', function() {
 });
 
 gulp.task('embedJs', function() {
-  return;
   return gulp.src([
     'api/embed.js',
     'api/embedPreprod.js',
@@ -622,7 +621,7 @@ gulp.task('common', [
   "css",
   "fontawesome",
   "index",
-  //"embedJs",
+  "embedJs",
   "notificationServiceWorker",
   ], function() {
     showDesktopNotification("BUILD UPDATED", "woohoo");
