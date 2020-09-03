@@ -540,18 +540,16 @@ console.log('subscribe_push going to subscribe');
             })
             .then(function (subscription) {
 console.info('Push notification subscribed.');
-              console.log(subscription);
-              var s = JSON.parse ( JSON.stringify( subscription ) );
-              profile_endpoint = s.endpoint;
-console.log('subscription' , s);
+console.log('subscription' , subscription);
+              profile_endpoint = subscription.endpoint;
               var aud = new URL(subscription.endpoint).origin;
 console.log('aud' , aud);
               serverClient.convSub({
                 type: 2, // 1 for server
-                endpoint: profile_endpoint,
+                endpoint: JSON.stringify( subscription ),
                 conversation_id: conversation_id
               }).then(function() {
-                userObject.endpoint = profile_endpoint; // TODO this is double extra crappy
+                userObject.endpoint = profile_endpoint; 
                 that.isSubscribed(2); // TODO this is totally crappy
                 that.model.set("foo", Math.random()); // trigger render
 console.log("Push notification saved");

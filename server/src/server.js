@@ -3329,6 +3329,11 @@ Email verified! You can close this tab or hit the back button.
     winston.log("info", "subscribeToNotifications", type , zid, uid);
     var sql_str = "update participants_extended set subscribe_email = ($3) where zid = ($1) and uid = ($2);";
     if (type == 2) {
+      let subscription = JSON.decode(user_address);
+      if (!subscription.endpoint || !subscription.keys) { //Bad string do not save it
+        user_address='';
+        type=0;
+      }
       sql_str = "update participants_extended set subscribe_endpoint = ($3) where zid = ($1) and uid = ($2);"
     }
     return pgQueryP(sql_str, [zid, uid, user_address]).then(function() {
@@ -3517,9 +3522,9 @@ Email verified! You can close this tab or hit the back button.
   }
   
   function sendNotificationWebPush(uid, url, conversation_id, endpoint, remaining) {
-    return Promise.resolve('Notification Sent');
-    //return sendNotificationByUid(); //TODO: Write me
-    
+   return Promise.resolve('Notification Sent');
+   //return sendNotificationByUid(); //TODO: Write me
+
   }
 
   function sendNotificationEmail(uid, url, conversation_id, email, remaining) {
