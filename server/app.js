@@ -436,7 +436,7 @@ helpersInitialized.then(function(o) {
     need('conversation_id', getConversationIdFetchZid, assignToPCustom('zid')),
     need("type", getInt, assignToP),
     want('email', getEmail, assignToP),
-    want('endpoint', getStringLimitLength(0,999), assignToP),
+    need('web_push', getStringLimitLength(0,999), assignToP),
     handle_POST_convSubscriptions);
 
   app.post("/api/v3/auth/login",

@@ -386,7 +386,7 @@ CREATE TABLE participants_extended(
     modified BIGINT NOT NULL DEFAULT now_as_millis(),
 
     subscribe_email VARCHAR(256), -- http://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
-    subscribe_endpoint VARCHAR(999), 
+    subscribe_web_push VARCHAR(999), 
 
     show_translation_activated BOOLEAN, -- true for activated, false for deactivated, or null for didn't click
 

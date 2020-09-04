@@ -3329,20 +3329,22 @@ Email verified! You can close this tab or hit the back button.
 
   function subscribeToNotifications(type , zid, uid, user_address) {
     // user_address can be email or endpint
-    winston.log("info", "subscribeToNotifications", type , zid, uid);
+    winston.log("info", "subscribeToNotifications", type , zid, uid , user_address);
     var sql_str = "update participants_extended set subscribe_email = ($3) where zid = ($1) and uid = ($2);";
     if (type == 2) {
-      let subscription = JSON.parse(user_address);
-      if (!subscription.endpoint || !subscription.keys) { //Bad string do not save it
+      let subscription;
+      try {
+        subscription =  JSON.parse(user_address); 
+      } catch {};
+      if (!subscription || !subscription.endpoint || !subscription.keys) { //Bad string do not save it
         user_address='';
         type=0;
+        throw new Error('could_not_save');
       }
-      sql_str = "update participants_extended set subscribe_endpoint = ($3) where zid = ($1) and uid = ($2);"
+      sql_str = "update participants_extended set subscribe_web_push = ($3) where zid = ($1) and uid = ($2);"
     }
     return pgQueryP(sql_str, [zid, uid, user_address]).then(function() {
-      return pgQueryP("update participants set subscribed = ($3) where zid = ($1) and uid = ($2);", [zid, uid, type]).then(function(rows) {
-        return type;
-      });
+      return pgQueryP("update participants set subscribed = ($3) where zid = ($1) and uid = ($2);", [zid, uid, type]);
     });
   }
 
@@ -3469,19 +3471,14 @@ Email verified! You can close this tab or hit the back button.
           // return pgQueryP("select p.uid, p.pid, u.email from participants as p left join users as u on p.uid = u.uid where p.pid in (" + pids.join(",") + ")", []).then((rows) => {
 
           // })
-          return pgQueryP("select uid, subscribe_email , subscribe_endpoint from participants_extended where uid in (select uid from participants where pid in (" + pids.join(",") + "));", []).then((rows) => {
+          return pgQueryP("select uid, subscribe_email , subscribe_web_push from participants_extended where uid in (select uid from participants where pid in (" + pids.join(",") + "));", []).then((rows) => {
             let how_to_reach_user = {};
             rows.forEach((row) => {
-              how_to_reach_user[row.uid] = (notification_types[row.uid] == 1  ? row.subscribe_email : row.subscribe_endpoint);
+              how_to_reach_user[row.uid] = (notification_types[row.uid] == 1  ? row.subscribe_email : row.subscribe_web_push);
             });
 
             let set_last_notified = function (u,z) {
               return pgQueryP("update participants set last_notified = now_as_millis(), nsli = nsli + 1 where uid = ($1) and zid = ($2);", [u, z]);
-            };
-            let deleteSubscriptionFromDatabase = function (u,z) {
-              return pgQueryP("update participants_extended set subscribe_endpoint = '($3)' where zid = ($1) and uid = ($2);", [zid, uid, '']).then(function() {
-                return pgQueryP("update participants set subscribed = ($3) where zid = ($1) and uid = ($2);", [zid, uid, 0]);
-              });
             };
             return Promise.each(needNotification, (item, index, length) => {
               const uid = pid_to_ptpt[item.pid].uid;
@@ -3490,14 +3487,13 @@ Email verified! You can close this tab or hit the back button.
                   return set_last_notified(uid, zid);
                 });
               } else {
-                //TODO Change me!
                 return sendNotificationWebPush(uid, url, conversation_id, how_to_reach_user[uid], item.remaining).then(() => {
                   return set_last_notified(uid, zid);
                 })
                 .catch((err) => {
                   if (err.statusCode === 404 || err.statusCode === 410) {
                     console.log('Subscription has expired or is no longer valid: ', err);
-                    return deleteSubscriptionFromDatabase(uid, zid);
+                    return subscribeToNotifications(0 , zid, uid, '');
                   } else {
                     throw err;
                   }
@@ -3650,7 +3646,7 @@ Email verified! You can close this tab or hit the back button.
     let type = req.p.type;
 
     let email = req.p.email;
-    let endpoint = req.p.endpoint;
+    let web_push = req.p.web_push;
 
     function finish(type) {
       res.status(200).json({
@@ -3663,7 +3659,7 @@ Email verified! You can close this tab or hit the back button.
         fail(res, 500, "polis_err_sub_conv " + zid + " " + uid, err);
       });
     } else if (type === 2) {
-      subscribeToNotifications(type , zid, uid, endpoint).then(finish).catch(function(err) {
+      subscribeToNotifications(type , zid, uid, web_push).then(finish).catch(function(err) {
         fail(res, 500, "polis_err_sub_conv " + zid + " " + uid, err);
       });
     } else if (type === 0) {

@@ -487,21 +487,17 @@ module.exports = Handlebones.ModelView.extend({
       var that = this;
       var notification_permission = Notification && Notification.permission;
 console.log('notification_permission ' , notification_permission);
-      var local_endpoint = null;
       var profile_allow_notifications = true;
-      var profile_endpoint;
       var get_endpoint = function () {
         navigator.serviceWorker.ready.then(function(r) {
           return r.pushManager.getSubscription().then( function(s) {
             if (s) {
-              local_endpoint = s.endpoint;
-              //profile_allow_notifications =  v.profile.endpoint && s.endpoint && v.profile.endpoint == s.endpoint;
+              //profile_allow_notifications =  v.profile.endpoint && s.endpoint && v.profile.endpoint == s.endpoint; // Possibiity subscribed but in another browser?
               profile_allow_notifications =  s.endpoint ;
-              console.log("Endpoint" , local_endpoint);
+              console.log("Endpoint" , profile_allow_notifications);
             } else {
-              local_endpoint = null;
-              console.log("Endpoint" , local_endpoint);
               profile_allow_notifications = false;
+              console.log("Endpoint" , profile_allow_notifications);
             }
           });
         });
@@ -541,15 +537,14 @@ console.log('subscribe_push going to subscribe');
             .then(function (subscription) {
 console.info('Push notification subscribed.');
 console.log('subscription' , subscription);
-              profile_endpoint = subscription.endpoint;
               var aud = new URL(subscription.endpoint).origin;
 console.log('aud' , aud);
               serverClient.convSub({
                 type: 2, // 1 for server
-                endpoint: JSON.stringify( subscription ),
+                web_push: JSON.stringify( subscription ),
                 conversation_id: conversation_id
               }).then(function() {
-                userObject.endpoint = profile_endpoint; 
+                userObject.endpoint = subscription.endpoint;
                 that.isSubscribed(2); // TODO this is totally crappy
                 that.model.set("foo", Math.random()); // trigger render
 console.log("Push notification saved");
@@ -585,13 +580,12 @@ console.log("Push notification saved");
               subscription.unsubscribe().then(function () {
                 console.info('Push notification unsubscribed.');
                 console.log(subscription);
-                profile_endpoint = undefined;
                 serverClient.convSub({
                   type: 2, // 1 for server
-                  endpoint: profile_endpoint,
+                  web_push: undefined,
                   conversation_id: conversation_id
                 }).then(function() {
-                  userObject.endpoint = profile_endpoint; // TODO this is double extra crappy
+                  userObject.endpoint = undefined;
                   that.isSubscribed(2); // TODO this is totally crappy
                   that.model.set("foo", Math.random()); // trigger render
 console.log("Push notification removed");
