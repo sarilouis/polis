@@ -1785,9 +1785,9 @@ function initializePolisHelpers() {
       }
       if (!rows || !rows.length) {
         // Could actually be a 404, would require more work to determine that.
-        throw new Error("polis_err_get_pca_results_missing");
+        return new Error("polis_err_get_pca_results_missing");
       } else if (rows[0].data.math_tick <= math_tick) {
-        throw new Error("polis_err_get_pca_results_not_new");
+        return new Error("polis_err_get_pca_results_not_new");
       } else {
         return rows[0].data;
       }
@@ -1891,10 +1891,7 @@ function initializePolisHelpers() {
       let bids = pids.map(findBidForPid);
       let pidToBid = _.object(pids, bids);
       return pidToBid;
-    }).catch(function(err) {
-      yell("polis_err_get_bids_for_pids_failed");
-      console.error(err);
-    });
+    })
   }
 
   // function getClusters(zid, math_tick) {
