@@ -3478,6 +3478,11 @@ Email verified! You can close this tab or hit the back button.
             let set_last_notified = function (u,z) {
               return pgQueryP("update participants set last_notified = now_as_millis(), nsli = nsli + 1 where uid = ($1) and zid = ($2);", [u, z]);
             };
+            let deleteSubscriptionFromDatabase = function (u,z) {
+              return pgQueryP("update participants_extended set subscribe_endpoint = '($3)' where zid = ($1) and uid = ($2);", [zid, uid, '']).then(function() {
+                return pgQueryP("update participants set subscribed = ($3) where zid = ($1) and uid = ($2);", [zid, uid, 0]);
+              });
+            };
             return Promise.each(needNotification, (item, index, length) => {
               const uid = pid_to_ptpt[item.pid].uid;
               if ( notification_types[row.uid] == 1 ) {
@@ -3488,8 +3493,15 @@ Email verified! You can close this tab or hit the back button.
                 //TODO Change me!
                 return sendNotificationWebPush(uid, url, conversation_id, how_to_reach_user[uid], item.remaining).then(() => {
                   return set_last_notified(uid, zid);
+                })
+                .catch((err) => {
+                  if (err.statusCode === 404 || err.statusCode === 410) {
+                    console.log('Subscription has expired or is no longer valid: ', err);
+                    return deleteSubscriptionFromDatabase(uid, zid);
+                  } else {
+                    throw err;
+                  }
                 });
-  
               }
             });
           });
