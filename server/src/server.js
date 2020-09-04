@@ -79,6 +79,7 @@ const Session = require('./session');
 const Comment = require('./comment');
 const Utils = require('./utils/common');
 const Translator = require('./translator');
+const detectLanguage = Translator.detectLanguage;
 const SQL = require('./db/sql');
 // End of re-import
 
@@ -585,7 +586,7 @@ function initializePolisHelpers() {
         if (i < comments.length) {
           let c = comments[i];
           i += 1;
-          Translator.detectLanguage(c.txt).then((x) => {
+          detectLanguage(c.txt).then((x) => {
             x = x[0];
             console.log("backfill", x.language + "\t\t" + c.txt);
             pgQueryP("update comments set lang = ($1), lang_confidence = ($2) where zid = ($3) and tid = ($4)",[
