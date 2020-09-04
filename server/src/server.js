@@ -3416,7 +3416,7 @@ Email verified! You can close this tab or hit the back button.
           const needNotification = results.filter((result) => {
             let ptpt = pid_to_ptpt[result.pid];
             let needs = true;
-
+            //return needs; //For testing only to force notifications every time
             needs = needs && result.remaining > 0;
 
             // if (needs && result.remaining < 5) {
@@ -3482,7 +3482,7 @@ Email verified! You can close this tab or hit the back button.
             };
             return Promise.each(needNotification, (item, index, length) => {
               const uid = pid_to_ptpt[item.pid].uid;
-              if ( notification_types[row.uid] == 1 ) {
+              if ( notification_types[uid] == 1 ) {
                 return sendNotificationEmail(uid, url, conversation_id, how_to_reach_user[uid], item.remaining).then(() => {
                   return set_last_notified(uid, zid);
                 });
