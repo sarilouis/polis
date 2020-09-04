@@ -41,6 +41,7 @@ const LruCache = require("lru-cache");
 const timeout = require('connect-timeout');
 const zlib = require('zlib');
 const _ = require('underscore');
+const webpush = require('web-push');
 
 // Re-import disassembled code to promise existing code will work
 const Log = require('./log');
@@ -189,6 +190,8 @@ setInterval(function() {
 // });
 // // END GITHUB OAUTH2
 const POLIS_FROM_ADDRESS = process.env.POLIS_FROM_ADDRESS;
+const WEBPUSH_PRIVATE_KEY = process.env.WEBPUSH_PRIVATE_KEY;
+const WEBPUSH_PUBLIC_KEY = process.env.WEBPUSH_PUBLIC_KEY;
 
 const akismet = akismetLib.client({
   blog: 'https://pol.is', // required: your root level url
@@ -3329,7 +3332,7 @@ Email verified! You can close this tab or hit the back button.
     winston.log("info", "subscribeToNotifications", type , zid, uid);
     var sql_str = "update participants_extended set subscribe_email = ($3) where zid = ($1) and uid = ($2);";
     if (type == 2) {
-      let subscription = JSON.decode(user_address);
+      let subscription = JSON.parse(user_address);
       if (!subscription.endpoint || !subscription.keys) { //Bad string do not save it
         user_address='';
         type=0;
@@ -3522,11 +3525,14 @@ Email verified! You can close this tab or hit the back button.
   }
   
   function sendNotificationWebPush(uid, url, conversation_id, endpoint, remaining) {
-   return Promise.resolve('Notification Sent');
-   //return sendNotificationByUid(); //TODO: Write me
-
+    webpush.setVapidDetails('mailto:'+POLIS_FROM_ADDRESS, WEBPUSH_PUBLIC_KEY , WEBPUSH_PRIVATE_KEY);
+    let subscription = JSON.parse( endpoint );
+    let dataToSend = {
+      url : '/' + conversation_id ,
+    };
+    return webpush.sendNotification(subscription, JSON.stringify(dataToSend) );
   }
-
+  
   function sendNotificationEmail(uid, url, conversation_id, email, remaining) {
     let subject = "New statements to vote on (conversation " + conversation_id + ")"; // Not sure if putting the conversation_id is ideal, but we need some way to ensure that the notifications for each conversation appear in separte threads.
     let body = "There are new statements available for you to vote on here:\n";
