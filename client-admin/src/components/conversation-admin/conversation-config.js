@@ -10,7 +10,7 @@ import {
 } from '../../actions'
 import ComponentHelpers from '../../util/component-helpers'
 import NoPermission from './no-permission'
-import { Heading, Box, Flex, Text, jsx } from 'theme-ui'
+import { Heading, Box, Flex, Text, jsx, Label } from 'theme-ui'
 import emoji from 'react-easy-emoji'
 
 import ModerateCommentsSeed from './seed-comment'
@@ -223,46 +223,6 @@ class ConversationConfig extends React.Component {
           <Box sx={{ flexShrink: 0, position: 'relative', top: -0.5 }}>
             <input
               type="checkbox"
-              label="Prompt participants to subscribe to updates by email"
-              ref={c => (this.subscribe_type_1 = c)}
-              checked={this.props.zid_metadata.subscribe_type === 1}
-              onChange={this.handleIntegerBoolValueChange('subscribe_type', 0, 1, 'subscribe_type_1').bind(this)}
-            />
-          </Box>
-          <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
-            <Text>
-              Prompt participants to subscribe to updates. A prompt is shown to
-              users once they finish voting on all available comments. If
-              enabled, participants may optionally provide their email address
-              to receive notifications when there are new comments to vote on.
-            </Text>
-          </Box>
-        </Flex>
-
-        <Flex sx={{ alignItems: 'flex-start', mb: [3] }}>
-          <Box sx={{ flexShrink: 0, position: 'relative', top: -0.5 }}>
-            <input
-              type="checkbox"
-              label="Prompt participants to subscribe to updates in browser"
-              ref={c => (this.subscribe_type_2 = c)}
-              checked={this.props.zid_metadata.subscribe_type === 2}
-              onChange={this.handleIntegerBoolValueChange('subscribe_type', 0, 2, 'subscribe_type_2').bind(this)}
-            />
-          </Box>
-          <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
-            <Text>
-              Prompt participants to subscribe to updates by getting 
-              browser notification when there are new comments to vote on.
-              A prompt is shown to users once they finish voting on all 
-              available comments. 
-            </Text>
-          </Box>
-        </Flex>
-
-        <Flex sx={{ alignItems: 'flex-start', mb: [3] }}>
-          <Box sx={{ flexShrink: 0, position: 'relative', top: -0.5 }}>
-            <input
-              type="checkbox"
               label="Facebook login prompt"
               data-test-id="auth_opt_fb"
               ref={c => (this.auth_opt_fb = c)}
@@ -288,6 +248,64 @@ class ConversationConfig extends React.Component {
           </Box>
           <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
             <Text>Show Twitter login prompt</Text>
+          </Box>
+        </Flex>
+
+        <Heading
+          as="h6"
+          sx={{
+            fontSize: [1, null, 2],
+            lineHeight: 'body',
+            my: [3, null, 4]
+          }}>
+          Prompt for notification subscription
+        </Heading>
+
+        <Flex sx={{ alignItems: 'flex-start', mb: [3] }}>
+          <Box>
+            <Text>
+              Prompt participants to subscribe to updates. A prompt is shown to
+              users once they finish voting on all available comments. If
+              enabled, participants may optionally provide their email address
+              or enable browser push notifications to receive a message when
+              there are new comments to vote on.
+            </Text>
+          </Box>
+        </Flex>
+
+        <Flex sx={{ alignItems: 'flex-start', mb: [3] }}>
+          <Box sx={{ flexShrink: 0, position: 'relative', top: -0.5 }}>
+            <input
+              type="checkbox"
+              label="Prompt participants to subscribe to updates by email"
+              ref={c => (this.subscribe_type_1 = c)}
+              id="subscribe_type_1"
+              checked={this.props.zid_metadata.subscribe_type === 1}
+              onChange={this.handleIntegerBoolValueChange('subscribe_type', 0, 1, 'subscribe_type_1').bind(this)}
+            />
+          </Box>
+          <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
+            <Label htmlFor="subscribe_type_1">
+              Email notifications
+            </Label>
+          </Box>
+        </Flex>
+
+        <Flex sx={{ alignItems: 'flex-start', mb: [3] }}>
+          <Box sx={{ flexShrink: 0, position: 'relative', top: -0.5 }}>
+            <input
+              type="checkbox"
+              label="Prompt participants to subscribe to updates in browser"
+              ref={c => (this.subscribe_type_2 = c)}
+              id="subscribe_type_2"
+              checked={this.props.zid_metadata.subscribe_type === 2}
+              onChange={this.handleIntegerBoolValueChange('subscribe_type', 0, 2, 'subscribe_type_2').bind(this)}
+            />
+          </Box>
+          <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
+            <Label htmlFor="subscribe_type_2">
+              Browser notifications
+            </Label>
           </Box>
         </Flex>
 
