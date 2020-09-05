@@ -36,13 +36,13 @@ class ConversationConfig extends React.Component {
     return value ? t : f
   }
 
-  handleIntegerBoolValueChange(field , f=0, t=1) {
+  handleIntegerBoolValueChange(field , f=0, t=1, element = field) {
     return () => {
       this.props.dispatch(
         handleZidMetadataUpdate(
           this.props.zid_metadata,
           field,
-          this.transformBoolToInt(this[field].checked , f , t)
+          this.transformBoolToInt(this[element].checked , f , t)
         )
       )
     }
@@ -218,16 +218,15 @@ class ConversationConfig extends React.Component {
             <Text>Show explanation text above voting and visualization</Text>
           </Box>
         </Flex>
-
+        
         <Flex sx={{ alignItems: 'flex-start', mb: [3] }}>
           <Box sx={{ flexShrink: 0, position: 'relative', top: -0.5 }}>
             <input
               type="checkbox"
               label="Prompt participants to subscribe to updates by email"
-              data-test-id="subscribe_type"
-              ref={c => (this.subscribe_type = c)}
+              ref={c => (this.subscribe_type_1 = c)}
               checked={this.props.zid_metadata.subscribe_type === 1}
-              onChange={this.handleIntegerBoolValueChange('subscribe_type' , 0 , 1).bind(this)}
+              onChange={this.handleIntegerBoolValueChange('subscribe_type', 0, 1, 'subscribe_type_1').bind(this)}
             />
           </Box>
           <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
@@ -245,9 +244,9 @@ class ConversationConfig extends React.Component {
             <input
               type="checkbox"
               label="Prompt participants to subscribe to updates in browser"
-              ref={c => (this.subscribe_type = c)}
+              ref={c => (this.subscribe_type_2 = c)}
               checked={this.props.zid_metadata.subscribe_type === 2}
-              onChange={this.handleIntegerBoolValueChange('subscribe_type' , 0 , 2).bind(this)}
+              onChange={this.handleIntegerBoolValueChange('subscribe_type', 0, 2, 'subscribe_type_2').bind(this)}
             />
           </Box>
           <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
