@@ -180,7 +180,9 @@ class ConversationConfig extends React.Component {
             />
           </Box>
           <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
-            <Label htmlFor="vis_type">Participants can see the visualization</Label>
+            <Label htmlFor="vis_type">
+              Participants can see the visualization
+            </Label>
           </Box>
         </Flex>
 
@@ -218,7 +220,9 @@ class ConversationConfig extends React.Component {
             />
           </Box>
           <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
-            <Label htmlFor="help_type">Show explanation text above voting and visualization</Label>
+            <Label htmlFor="help_type">
+              Show explanation text above voting and visualization
+            </Label>
           </Box>
         </Flex>
 
@@ -304,7 +308,9 @@ class ConversationConfig extends React.Component {
             />
           </Box>
           <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
-            <Label htmlFor="strict_moderation">No comments shown without moderator approval</Label>
+            <Label htmlFor="strict_moderation">
+              No comments shown without moderator approval
+            </Label>
           </Box>
         </Flex>
 
