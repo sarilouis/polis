@@ -62,6 +62,14 @@ class ConversationConfig extends React.Component {
     }
   }
 
+  handleRadioValueChange(field) {
+    return e => {
+      this.props.dispatch(
+        handleZidMetadataUpdate(this.props.zid_metadata, field, e.target.value)
+      )
+    }
+  }
+
   handleConfigInputTyping(field) {
     return e => {
       this.props.dispatch(
@@ -276,17 +284,17 @@ class ConversationConfig extends React.Component {
         <Flex sx={{ alignItems: 'flex-start', mb: [3] }}>
           <Box sx={{ flexShrink: 0, position: 'relative', top: -0.5 }}>
             <input
-              type="checkbox"
-              label="Prompt participants to subscribe to updates by email"
-              ref={c => (this.subscribe_type_1 = c)}
-              id="subscribe_type_1"
-              checked={this.props.zid_metadata.subscribe_type === 1}
-              onChange={this.handleIntegerBoolValueChange('subscribe_type', 0, 1, 'subscribe_type_1').bind(this)}
+              type="radio"
+              label="Do not prompt participants to subscribe"
+              id="subscribe_type_r0"
+              value="0"
+              checked={this.props.zid_metadata.subscribe_type === 0}
+              onChange={this.handleRadioValueChange('subscribe_type').bind(this)}
             />
           </Box>
           <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
-            <Label htmlFor="subscribe_type_1">
-              Email notifications
+            <Label htmlFor="subscribe_type_r0">
+              No prompt
             </Label>
           </Box>
         </Flex>
@@ -294,17 +302,35 @@ class ConversationConfig extends React.Component {
         <Flex sx={{ alignItems: 'flex-start', mb: [3] }}>
           <Box sx={{ flexShrink: 0, position: 'relative', top: -0.5 }}>
             <input
-              type="checkbox"
-              label="Prompt participants to subscribe to updates in browser"
-              ref={c => (this.subscribe_type_2 = c)}
-              id="subscribe_type_2"
-              checked={this.props.zid_metadata.subscribe_type === 2}
-              onChange={this.handleIntegerBoolValueChange('subscribe_type', 0, 2, 'subscribe_type_2').bind(this)}
+              type="radio"
+              label="Prompt participants to subscribe to updates by email"
+              id="subscribe_type_r1"
+              value="1"
+              checked={this.props.zid_metadata.subscribe_type === 1}
+              onChange={this.handleRadioValueChange('subscribe_type').bind(this)}
             />
           </Box>
           <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
-            <Label htmlFor="subscribe_type_2">
-              Browser notifications
+            <Label htmlFor="subscribe_type_r1">
+              Email notifications prompt
+            </Label>
+          </Box>
+        </Flex>
+
+        <Flex sx={{ alignItems: 'flex-start', mb: [3] }}>
+          <Box sx={{ flexShrink: 0, position: 'relative', top: -0.5 }}>
+            <input
+              type="radio"
+              label="Prompt participants to subscribe to updates in browser"
+              id="subscribe_type_r2"
+              value="2"
+              checked={this.props.zid_metadata.subscribe_type === 2}
+              onChange={this.handleRadioValueChange('subscribe_type').bind(this)}
+            />
+          </Box>
+          <Box sx={{ ml: [2], flexShrink: 0, maxWidth: '35em' }}>
+            <Label htmlFor="subscribe_type_r2">
+              Browser notifications prompt
             </Label>
           </Box>
         </Flex>
